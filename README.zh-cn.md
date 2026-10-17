@@ -93,7 +93,7 @@ Project Maya 自研的 GLM-5.3-Flash 量化版本，基于 Z.ai 发布的 FP8 �
 **多请求并发**（`--parallel`）能叠加提速：在单块 GPU 上，多个请求各取一个 token 一起穿过模型，稠密权重只需
 读取一次。以所有请求合计的 tokens/s 对比逐个问同样的问题：在从内存流式读取 Maya-S 大部分专家的 V100 上，
 2 个请求 x1.41、4 个请求 x1.35；在把全部专家都放进 GPU 显存的 Gorgon Halo（Radeon 8065S，160 GB 给 GPU）上，
-2 个请求 x1.67、4 个请求 x2.02。显存装下的模型越多，提升越大（[详情](docs/SETTINGS.md#several-requests-at-once)）。
+2 个请求 x1.67、4 个请求 x2.02。显存装下的模型越多，提升越大（[详情](docs/SETTINGS.zh-cn.md#多个请求同时)）。
 
 ## 运行要求
 
@@ -102,7 +102,7 @@ Project Maya 自研的 GLM-5.3-Flash 量化版本，基于 Z.ai 发布的 FP8 �
 | **GPU** | NVIDIA，计算能力 7.0 或更新（V100、RTX 20 及以后）：单卡，或最多 16 卡共同承载模型。显存越多越快。Pascal（Tesla P40 / P100、GTX 10）为实验性支持，尚未充分验证。**AMD（实验性）：** RX 7900 XT / XTX、Radeon AI PRO R9700 / RX 9070、Strix Halo 与 Gorgon Halo（Radeon 8060S / 8065S）；RX 6800 / 6900 与 Radeon PRO V620 / W6800 尚未验证；仅支持文本——[docs/AMD_MAYA.md](docs/AMD_MAYA.md) |
 | **内存** | 32 GB 即可运行。内存越多，驻留的专家越多，速度越快 |
 | **硬盘** | **一块高速 NVMe 固态硬盘**，需容纳模型（Maya-S 约 100 GB，Maya-L 约 160 GB）及其图片编码器（1.1 GB）。机械硬盘不行 |
-| **系统** | Linux（x86-64；CPU 最好支持 AVX2）、NVIDIA 驱动、CUDA 12.x（RTX 20 及以后可用 CUDA 13，V100 与 Pascal 不支持 CUDA 13）、g++、Python 3.10+。Windows 10/11（实验性）：[docs/WINDOWS.md](docs/WINDOWS.md)。不支持 WSL2。AMD：ROCm 7 |
+| **系统** | Linux（x86-64；CPU 最好支持 AVX2）、NVIDIA 驱动、CUDA 12.x（RTX 20 及以后可用 CUDA 13，V100 与 Pascal 不支持 CUDA 13）、g++、Python 3.10+。Windows 10/11（实验性）：[docs/WINDOWS.zh-cn.md](docs/WINDOWS.zh-cn.md)。不支持 WSL2。AMD：ROCm 7 |
 
 安装程序会检查以上所有内容，对缺失的项打印出确切的安装命令，且不会改动系统级的任何东西。
 
@@ -117,10 +117,10 @@ git clone https://github.com/mw00/project-maya.git && cd project-maya
 下载时间另计），然后**启动模型**。接着打开 `http://127.0.0.1:8080`。Ctrl+C 停止运行，再执行 `./setup.sh`
 即可立刻重新启动。
 
-- **Windows：** 用 `START-MAYA.bat` 代替 `./setup.sh`——见 [docs/WINDOWS.md](docs/WINDOWS.md)。
+- **Windows：** 用 `START-MAYA.bat` 代替 `./setup.sh`——见 [docs/WINDOWS.zh-cn.md](docs/WINDOWS.zh-cn.md)。
 - **AMD：** 见 [docs/AMD_MAYA.md](docs/AMD_MAYA.md)。
 - **更新：** 通过控制台的 **About > Update**，或 `git pull` 后再 `./setup.sh`。模型不会重新下载。
-- **全部选项**（显卡、上下文、已有的模型文件夹、远程访问等）：[docs/SETUP.md](docs/SETUP.md)。
+- **全部选项**（显卡、上下文、已有的模型文件夹、远程访问等）：[docs/SETUP.zh-cn.md](docs/SETUP.zh-cn.md)。
 
 > **启动需要几分钟：** 引擎会把大部分空闲内存（除约 6 GB 外的全部）固定为专家层专用，因此 Maya 运行期间
 > 其他程序可用的内存很少。
@@ -133,21 +133,21 @@ git clone https://github.com/mw00/project-maya.git && cd project-maya
   `http://127.0.0.1:8080/v1/messages`（Claude Code：`ANTHROPIC_BASE_URL=http://127.0.0.1:8080`）。工具调用会
   随模型输出流式返回；请求要求时（`"return_progress": true`）也会流式返回长提示的读取进度。允许其地址后，
   来自其他地址的网页也能调用（`"cors_origins"`，
-  [docs/SETUP.md](docs/SETUP.md#web-pages-on-another-address)）。
+  [docs/SETUP.zh-cn.md](docs/SETUP.zh-cn.md#在其他地址上的网页)）。
 - **思考：** 关闭、低、高（默认）或最大，可在设置里改，也可在单个请求里指定。
 - **图片：** 在聊天里直接附加，或通过任一 API 发送图片部分。
 - **从其他设备访问：** `./maya.sh --setup --host 0.0.0.0 --api-key <secret>`。务必设置 API key。
 - **调优：** `./maya.sh --calibrate` 用 10–15 分钟把引擎调到适配你的硬件。全部设置项：
-  [docs/SETTINGS.md](docs/SETTINGS.md)。
+  [docs/SETTINGS.zh-cn.md](docs/SETTINGS.zh-cn.md)。
 - **多请求并发：** `./maya.sh --parallel 4`（Windows：`START-MAYA.bat --parallel 4`；最多 8）会写入配置，
   控制台会显示正在生成几个回答。每个额外请求都要在显存里保留自己的上下文，因此显存能容纳的专家会略少
-  （[详情](docs/SETTINGS.md#several-requests-at-once)）。
+  （[详情](docs/SETTINGS.zh-cn.md#多个请求同时)）。
 - **长上下文：** 新安装会把每个注意力层的缓存放在内存、显存里只留一个窗口（`--kv-streaming on`；已有配置执行
   `./maya.sh --setup` 可加上），从而显存能容纳更多专家——在 RTX 3090 上 512K 上下文时，提示处理快 4–9 倍、
-  解码 +5%；1M 上下文单张 3090 就能装下（[详情](docs/SETTINGS.md)）。
+  解码 +5%；1M 上下文单张 3090 就能装下（[详情](docs/SETTINGS.zh-cn.md)）。
 - **用 DFlash2 起草器更快出答案：** `./maya.sh --setup --draft dflash2`（NVIDIA RTX 30 / A100 及以后）会下载
   一个小型起草器，每轮最多起草 7 个 token 且答案不变——对比 MTP 模块，Maya-L 在 9 卡上 +44%、2 卡上 +12%，
-  单张 RTX 3090 上 +19%（[详情](docs/SETTINGS.md#drafting-with-dflash2)）。实际收益取决于电脑：在从内存读取
+  单张 RTX 3090 上 +19%（[详情](docs/SETTINGS.zh-cn.md#使用-dflash2-起草)）。实际收益取决于电脑：在从内存读取
   大部分模型的单卡上常常反而更慢。因此速度校准会在你的电脑上实测，只在更快的地方启用。该起草器的许可证为
   非商用（CC BY-NC-ND 4.0）。
 
@@ -176,7 +176,7 @@ git clone https://github.com/mw00/project-maya.git && cd project-maya
 - **很慢、固态硬盘一直在读写：** 空闲内存不够放专家了。关掉一些程序，或者加内存。
 - **Windows：回答突然慢了几倍：** 显卡显存太满，Windows 把 GPU 内存搬到内存里去了。给显存留些余量：
   `START-MAYA.bat --setup --vram-reserve-mib 2048`
-  （[专家池的大小](docs/SETTINGS.md#the-expert-pools-size)）。
+  （[专家池的大小](docs/SETTINGS.zh-cn.md#专家池的大小)）。
 - **下载中断：** 再运行一次 `./maya.sh`，会从中断处继续。
 - **8080 端口被占用：** Maya 已经在运行了；或者用 `--port 8081` 再启动一个。
 
